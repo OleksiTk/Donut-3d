@@ -1,0 +1,12 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - status [ref=e4]:
+      - paragraph [ref=e8]: Glazing… 0%
+    - region [ref=e9]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Strawberry glaze, poured by hand at five every morning. Still warm at eight.
+          - link "Order a box" [ref=e14] [cursor=pointer]:
+            - /url: "#order"
+        - heading "Donut" [level=1] [ref=e16]
+      - paragraph [ref=e19]: Drag the donut to turn it.

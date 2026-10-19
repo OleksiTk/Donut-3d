@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --dough: #f5d98e;
+  --strawberry: #ea6f9a;
+  --strawberry-deep: #b8235a;
+  --licorice: #1c0c12;
+  --gilt: #e9b85a;
+  --gilt-light: #ffe6a6;
+  --crumb: #3b1a22;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-dough: var(--dough);
+  --color-strawberry: var(--strawberry);
+  --color-strawberry-deep: var(--strawberry-deep);
+  --color-licorice: var(--licorice);
+  --color-gilt: var(--gilt);
+  --color-gilt-light: var(--gilt-light);
+  --color-crumb: var(--crumb);
+  --font-display: var(--font-modak);
+  --font-sans: var(--font-bricolage);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--dough);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--dough);
+  color: var(--crumb);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--strawberry-deep);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.on-dark :focus-visible {
+  outline-color: var(--gilt-light);
+}
+
+/* Modak sits very low in its em box; pull the line box tight around the letters */
+.display {
+  font-family: var(--font-modak), system-ui;
+  font-weight: 400;
+  line-height: 0.78;
+  letter-spacing: -0.01em;
+}
+
+/* Gold heading: metallic ramp clipped to the letters */
+.gold-type {
+  background: linear-gradient(180deg, #fff1c4 0%, #f2c86a 42%, #c58a2e 62%, #f6d27e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* glyphs overflow Modak's tight line box; let the ramp cover the descenders */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
