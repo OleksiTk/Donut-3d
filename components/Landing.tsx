@@ -341,7 +341,7 @@ export function Landing() {
                 Flaky Maldon Salt
               </span>
             </div>
-            <div className="relative mt-[1.5svh] aspect-square w-[min(78vw,46svh)]" aria-hidden="true">
+            <div className="relative mt-[1.5svh] aspect-square w-[min(78vw,46svh)] touch-pan-y">
               <BlackDonutView active={blackActive} />
             </div>
           </div>
@@ -350,7 +350,7 @@ export function Landing() {
 
       <section ref={gold} id="order" aria-labelledby="gold-title" className="on-dark bg-licorice text-gilt-light">
         <div className="relative z-20 mx-auto flex min-h-[100svh] max-w-[1200px] flex-col items-center px-6 pb-16 pt-[6svh] text-center">
-          <div className="relative aspect-[5/4] w-[min(96vw,780px,78svh)]" aria-hidden="true">
+          <div className="relative aspect-[5/4] w-[min(96vw,780px,78svh)] touch-pan-y">
             <GoldDonutView active={goldActive} />
           </div>
 

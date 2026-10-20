@@ -216,13 +216,30 @@ function BlackDonut({ active }: ViewProps) {
   const root = useRef<THREE.Group>(null);
   const tilt = useRef<THREE.Group>(null);
   const spin = useRef<THREE.Group>(null);
+  const dragging = useRef(false);
+  const speed = useRef(1);
   const idle = useRef(0);
+
+  useEffect(() => {
+    const release = () => (dragging.current = false);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    return () => {
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+    };
+  }, []);
 
   useFrame((_, dt) => {
     if (!active || !root.current || !tilt.current || !spin.current) return;
     const p = sceneState.black;
     const appear = smoothstep(p, 0.08, 0.42);
-    if (!sceneState.reduced) idle.current += dt * 0.25;
+    const still = sceneState.reduced;
+
+    const target = dragging.current || still ? 0 : 1;
+    speed.current = damp(speed.current, target, 3, dt);
+    idle.current += dt * 0.4 * speed.current;
+
     root.current.scale.setScalar(Math.max(appear, 0.001));
     root.current.position.y = lerp(-0.65, 0.14, appear);
     tilt.current.rotation.x = lerp(1.5, 0.75, appear);
@@ -232,11 +249,21 @@ function BlackDonut({ active }: ViewProps) {
   return (
     <>
       <group ref={root}>
-        <group ref={tilt}>
-          <group ref={spin}>
-            <DonutModel variant="black" />
+        <PresentationControls
+          global={false}
+          cursor
+          snap={false}
+          speed={1.6}
+          polar={[-0.6, 0.7]}
+          azimuth={[-Infinity, Infinity]}
+          damping={0.25}
+        >
+          <group ref={tilt}>
+            <group ref={spin} onPointerDown={() => (dragging.current = true)}>
+              <DonutModel variant="black" />
+            </group>
           </group>
-        </group>
+        </PresentationControls>
       </group>
       <pointLight position={[-2.2, 1.8, 2.5]} color="#ffe8d6" distance={7} decay={2} intensity={7} />
       <pointLight position={[2.2, -1.2, 2.0]} color="#d48ca6" distance={6} decay={2} intensity={4} />
@@ -268,11 +295,24 @@ function GoldDonut({ active }: ViewProps) {
   const sparkles = useRef<THREE.Group>(null);
   const glint = useRef<THREE.PointLight>(null);
   const halo = useRef<THREE.ShaderMaterial>(null);
+  const dragging = useRef(false);
+  const speed = useRef(1);
+  const idle = useRef(0);
   const haloUniforms = useMemo(
     () => ({ uOpacity: { value: 0 }, uColor: { value: new THREE.Color("#e9a43c") } }),
     [],
   );
   const clock = useRef(0);
+
+  useEffect(() => {
+    const release = () => (dragging.current = false);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    return () => {
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+    };
+  }, []);
 
   // `scene` here is the View's own portal scene
   useFrame(({ scene }, dt) => {
@@ -282,12 +322,16 @@ function GoldDonut({ active }: ViewProps) {
     if (!still) clock.current += dt;
     const c = clock.current;
 
+    const target = dragging.current || still ? 0 : 1;
+    speed.current = damp(speed.current, target, 3, dt);
+    idle.current += dt * 0.4 * speed.current;
+
     // rise out of the glow while growing and unwinding three turns; starts small and
     // inside the frame so the view's scissor edge never clips it
     root.current.position.y = lerp(-0.85, 0.14, t) + Math.sin(c * 1.1) * 0.05 * t;
     root.current.scale.setScalar(lerp(0.3, 1, t));
     root.current.visible = t > 0.001;
-    spin.current.rotation.y = (1 - t) * -Math.PI * 3 + c * 0.22;
+    spin.current.rotation.y = (1 - t) * -Math.PI * 3 + idle.current;
     tilt.current.rotation.x = lerp(1.55, 0.78, t);
     tilt.current.rotation.z = lerp(0.6, 0.1, t);
 
@@ -309,11 +353,21 @@ function GoldDonut({ active }: ViewProps) {
         <shaderMaterial ref={halo} transparent depthWrite={false} uniforms={haloUniforms} {...haloShader} />
       </mesh>
       <group ref={root}>
-        <group ref={tilt}>
-          <group ref={spin}>
-            <DonutModel variant="gold" />
+        <PresentationControls
+          global={false}
+          cursor
+          snap={false}
+          speed={1.6}
+          polar={[-0.6, 0.7]}
+          azimuth={[-Infinity, Infinity]}
+          damping={0.25}
+        >
+          <group ref={tilt}>
+            <group ref={spin} onPointerDown={() => (dragging.current = true)}>
+              <DonutModel variant="gold" />
+            </group>
           </group>
-        </group>
+        </PresentationControls>
       </group>
       <pointLight ref={glint} color="#ffd9a0" distance={8} decay={2} intensity={0} />
       <group ref={sparkles}>
