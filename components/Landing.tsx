@@ -21,6 +21,14 @@ const BlackDripsView = dynamic(() => import("./three/views").then((m) => m.Black
 const BlackDonutView = dynamic(() => import("./three/views").then((m) => m.BlackDonutView), { ssr: false });
 const GoldDonutView = dynamic(() => import("./three/views").then((m) => m.GoldDonutView), { ssr: false });
 
+type ActiveFlavor = "pink" | "black" | "gold";
+
+const FAVICONS: Record<ActiveFlavor, { href: string; title: string }> = {
+  pink: { href: "/favicon-pink.svg", title: "Donut · Wild Strawberry" },
+  black: { href: "/favicon-black.svg", title: "Donut · Black Cocoa" },
+  gold: { href: "/favicon-gold.svg", title: "Donut · 23K Gold" },
+};
+
 /** True while the element is on (or near) the screen; inactive views skip their frame work. */
 function useInView(ref: RefObject<HTMLElement | null>, margin = "85% 0px") {
   const [inView, setInView] = useState(true);
@@ -42,6 +50,51 @@ export function Landing() {
   const heroActive = useInView(hero);
   const blackActive = useInView(black);
   const goldActive = useInView(gold);
+  const [activeFlavor, setActiveFlavor] = useState<ActiveFlavor>("pink");
+
+  // Track which donut section is currently in view and sync the browser tab favicon + title
+  useEffect(() => {
+    const updateActiveFlavor = () => {
+      const probeY = window.innerHeight * 0.45;
+      const goldTop = gold.current?.getBoundingClientRect().top ?? Infinity;
+      const blackTop = black.current?.getBoundingClientRect().top ?? Infinity;
+
+      if (goldTop <= probeY) {
+        setActiveFlavor("gold");
+      } else if (blackTop <= probeY) {
+        setActiveFlavor("black");
+      } else {
+        setActiveFlavor("pink");
+      }
+    };
+
+    updateActiveFlavor();
+    window.addEventListener("scroll", updateActiveFlavor, { passive: true });
+    window.addEventListener("resize", updateActiveFlavor);
+    return () => {
+      window.removeEventListener("scroll", updateActiveFlavor);
+      window.removeEventListener("resize", updateActiveFlavor);
+    };
+  }, []);
+
+  useEffect(() => {
+    const { href, title } = FAVICONS[activeFlavor];
+    document.title = title;
+
+    const links = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
+    if (links.length > 0) {
+      links.forEach((link) => {
+        link.type = "image/svg+xml";
+        link.href = href;
+      });
+    } else {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.type = "image/svg+xml";
+      link.href = href;
+      document.head.appendChild(link);
+    }
+  }, [activeFlavor]);
 
   useGSAP(
     () => {
@@ -112,7 +165,16 @@ export function Landing() {
           href="#hero-title"
           className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-crumb/12 bg-dough/85 px-4 py-2 text-xs font-semibold tracking-wider text-crumb uppercase shadow-[0_4px_20px_rgba(59,26,34,0.08)] backdrop-blur-md transition-[transform,background-color] duration-150 hover:bg-dough active:scale-[0.96] motion-reduce:transition-none"
         >
-          <span className="h-2 w-2 rounded-full bg-strawberry-deep" aria-hidden="true" />
+          <span
+            className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${
+              activeFlavor === "pink"
+                ? "bg-strawberry-deep"
+                : activeFlavor === "black"
+                  ? "bg-licorice"
+                  : "bg-gilt"
+            }`}
+            aria-hidden="true"
+          />
           14 Baker Lane · Craft Archive
         </a>
 
@@ -122,19 +184,25 @@ export function Landing() {
         >
           <a
             href="#hero-title"
-            className="rounded-full px-3.5 py-1.5 transition-[background-color,color] duration-150 hover:bg-crumb/8"
+            className={`rounded-full px-3.5 py-1.5 transition-[background-color,color] duration-150 ${
+              activeFlavor === "pink" ? "bg-strawberry-deep text-dough" : "hover:bg-crumb/8"
+            }`}
           >
             01 · Strawberry
           </a>
           <a
             href="#black-section"
-            className="rounded-full px-3.5 py-1.5 transition-[background-color,color] duration-150 hover:bg-crumb/8"
+            className={`rounded-full px-3.5 py-1.5 transition-[background-color,color] duration-150 ${
+              activeFlavor === "black" ? "bg-crumb text-dough" : "hover:bg-crumb/8"
+            }`}
           >
             02 · Black Cocoa
           </a>
           <a
             href="#order"
-            className="rounded-full bg-crumb px-3.5 py-1.5 text-dough transition-[transform,background-color] duration-150 hover:bg-crumb/90 active:scale-[0.96]"
+            className={`rounded-full px-3.5 py-1.5 transition-[transform,background-color,color] duration-150 active:scale-[0.96] ${
+              activeFlavor === "gold" ? "bg-gilt text-licorice" : "hover:bg-crumb/8"
+            }`}
           >
             03 · 23K Gold
           </a>

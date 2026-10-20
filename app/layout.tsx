@@ -16,7 +16,11 @@ const bricolage = Bricolage_Grotesque({
 export const metadata: Metadata = {
   title: "Donut — glazed every morning",
   description:
-    "Hand-glazed donuts: strawberry, black cocoa and a gold one, twelve a day.",
+    "Hand-glazed brioche donuts: wild strawberry, black cocoa sesame, and 23-carat honey-butter gold.",
+  icons: {
+    icon: [{ url: "/favicon-pink.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon-pink.svg"],
+  },
 };
 
 export const viewport: Viewport = {
