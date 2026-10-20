@@ -26,6 +26,12 @@ html {
   background: var(--dough);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   background: var(--dough);
   color: var(--crumb);
